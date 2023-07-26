@@ -22,19 +22,29 @@ const CardRegister: React.FC = () => {
     }))
   }
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {}
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    axios
+      .post('http://localhost:3001/passwords', formData)
+      .then(res => {
+        if (res.data.Status == 'Success') {
+          navigate('/')
+        }
+      })
+      .then(err => console.log(err))
+  }
 
   return (
     <div className="container mt-5">
       <h2>Card Registration</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="expirationDate">Brand:</label>
+          <label htmlFor="brand">Brand:</label>
           <input
             type="text"
             className="form-control"
-            id="expirationDate"
-            name="expirationDate"
+            id="brand"
+            name="brand"
             value={formData.brand}
             onChange={handleChange}
             required
@@ -53,12 +63,12 @@ const CardRegister: React.FC = () => {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="cardHolderName">Name:</label>
+          <label htmlFor="cardName">Name:</label>
           <input
             type="text"
             className="form-control"
-            id="cardHolderName"
-            name="cardHolderName"
+            id="cardName"
+            name="cardName"
             value={formData.cardName}
             onChange={handleChange}
             required

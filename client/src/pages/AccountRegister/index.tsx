@@ -20,38 +20,48 @@ const AccountRegister: React.FC = () => {
     }))
   }
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {}
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    axios
+      .post('http://localhost:3001/passwords', formData)
+      .then(res => {
+        if (res.data.Status == 'Success') {
+          navigate('/')
+        }
+      })
+      .then(err => console.log(err))
+  }
 
   return (
     <div className="container mt-5">
       <h2>Account Registration</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="confirmPassword">Website name:</label>
+          <label>Website name:</label>
           <input
-            type="password"
+            type="text"
             className="form-control"
-            id="confirmPassword"
-            name="confirmPassword"
+            id="brand"
+            name="brand"
             value={formData.brand}
             onChange={handleChange}
             required
           />
         </div>
         <div className="form-group">
-          <label htmlFor="username">URL:</label>
+          <label>URL:</label>
           <input
             type="text"
             className="form-control"
-            id="username"
-            name="username"
+            id="url"
+            name="url"
             value={formData.url}
             onChange={handleChange}
             required
           />
         </div>
         <div className="form-group">
-          <label htmlFor="email">Email:</label>
+          <label>Email:</label>
           <input
             type="email"
             className="form-control"

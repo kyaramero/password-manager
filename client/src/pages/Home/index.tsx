@@ -8,6 +8,7 @@ const Home = () => {
   const [name, setName] = useState('')
   axios.defaults.withCredentials = true
   const navigate = useNavigate()
+  const [passwords, setPasswords] = useState([])
 
   useEffect(() => {
     axios
@@ -22,6 +23,15 @@ const Home = () => {
         }
       })
       .then(err => console.log('err', err))
+  }, [])
+
+  useEffect(() => {
+    axios
+      .get('http://localhost:3001/passwords')
+      .then(res => {
+        setPasswords(res.data)
+      })
+      .catch(err => console.log(err))
   }, [])
 
   const handleLogout = () => {
@@ -53,6 +63,11 @@ const Home = () => {
           >
             Add account
           </button>
+          <div>
+            {passwords.map((data, i) => (
+              <p>{data['password']}</p>
+            ))}
+          </div>
         </div>
       ) : (
         <div>

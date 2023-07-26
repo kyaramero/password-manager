@@ -19,6 +19,13 @@ app.use(
   })
 );
 
+interface CurrentUser {
+  user_id: number;
+  name: string;
+}
+
+let currentUser: CurrentUser = { user_id: 0, name: '' };
+
 app.use(cookieParser());
 
 const db = mysql.createConnection({
@@ -48,6 +55,57 @@ app.get('/', verifyUser, (req, res) => {
   return res.json({ Status: 'Success', name: req['name'] });
 });
 
+app.get('/passwords', (req, res) => {
+  const sql = 'SELECT * FROM passwords WHERE fk_user_id = (?)';
+  db.query(sql, [currentUser['user_id']], (err, data) => {
+    if (err) return res.json('Error');
+    return res.json(data);
+  });
+});
+
+app.post('/passwords', (req, res) => {
+  const sql =
+    'INSERT INTO passwords (`type`, `url`, `password`, `email`, `brand`, `fk_user_id`) VALUES (?)';
+  bcrypt.hash(req.body.password.toString(), salt, (err, hash) => {
+    if (err) return res.json({ Error: 'Error for hashing password' });
+    const data = [
+      'Account',
+      req.body.url,
+      hash,
+      req.body.email,
+      req.body.brand,
+      currentUser['user_id'],
+    ];
+    db.query(sql, [data], (err, result) => {
+      if (err) return res.json({ Error: 'Inserting data error in server' });
+      return res.json({ Status: 'Success' });
+    });
+  });
+});
+
+app.post('/passwords', (req, res) => {
+  const sql =
+    'INSERT INTO passwords (`type`, `name`, `password`, `cvc_card`, `brand`, `exp_card`, `fk_user_id`, `num_card`) VALUES (?)';
+  bcrypt.hash(req.body.cardPassword.toString(), salt, (err, hash) => {
+    if (err) return res.json({ Error: 'Error for hashing password' });
+    const data = [
+      'Card',
+      req.body.cardName,
+      hash,
+      req.body.cvv,
+      req.body.brand,
+      req.body.expirationDate,
+      currentUser['user_id'],
+      req.body.cardNumber,
+    ];
+    db.query(sql, [data], (err, result) => {
+      console.log('erro', err);
+      if (err) return res.json({ Error: 'Inserting data error in server' });
+      return res.json({ Status: 'Success' });
+    });
+  });
+});
+
 app.post('/register', (req, res) => {
   const sql = 'INSERT INTO login (`name`, `email`, `password`) VALUES (?)';
   bcrypt.hash(req.body.password.toString(), salt, (err, hash) => {
@@ -73,6 +131,8 @@ app.post('/login', (req, res) => {
           if (err) return res.json({ Error: "Can't compare password" });
           if (response) {
             const name = data[0].name;
+            const user_id = data[0].user_id;
+            currentUser = { user_id, name };
             const token = jwt.sign({ name }, 'jwt-secret-key', {
               expiresIn: '1d',
             });
