@@ -1,21 +1,19 @@
-// import '@controllers/DummyController';
-import * as dotenv from 'dotenv';
-import express from 'express';
-import mysql from 'mysql';
-import cors from 'cors';
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import express from 'express';
+import jwt from 'jsonwebtoken';
 import { db } from './database';
 const { encrypt, decrypt } = require('./encryption');
 
 const salt = 10;
+require('dotenv').config();
 
 const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: 'http://localhost:3000',
+    origin: `http://${process.env.HOST}:3000`,
     methods: ['POST', 'GET'],
     credentials: true,
   })
@@ -29,13 +27,6 @@ interface CurrentUser {
 let currentUser: CurrentUser = { user_id: 0, name: '' };
 
 app.use(cookieParser());
-
-// const db = mysql.createConnection({
-//   host: 'localhost',
-//   user: 'root',
-//   password: 'password',
-//   database: 'passwordmanager',
-// });
 
 const verifyUser = (req, res, next) => {
   const token = req.cookies.token;
@@ -184,6 +175,6 @@ app.get('/logout', (req, res) => {
   return res.json({ Status: 'Success' });
 });
 
-app.listen(3001, () => {
+app.listen(process.env.SERVER_PORT, () => {
   console.log('Server is running 🟢');
 });
