@@ -1,6 +1,10 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import TextInput from '../../components/TextInput'
+import { Container, Title, Registration } from '../../components/Forms'
+import BtnSubmit from '../../components/BtnSubmit'
+import { toast } from 'react-toastify'
 
 const Register: React.FC = () => {
   const navigate = useNavigate()
@@ -20,68 +24,48 @@ const Register: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    axios
-      .post('http://localhost:3001/register', formData)
-      .then(res => {
-        if (res.data.Status == 'Success') {
-          navigate('/login')
-        }
-      })
-      .then(err => console.log(err))
+    axios.post('http://localhost:3001/register', formData).then(res => {
+      if (res.data.Status == 'Success') {
+        navigate('/login')
+      }
+      if (res.data.Error === 'Email already exists. Try another.') {
+        toast.error(res.data.Error)
+      }
+    })
   }
 
   return (
-    <div className="container mt-5">
-      <h2>Register</h2>
+    <Container>
+      <Title>Registration</Title>
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="name">Name:</label>
-          <input
-            type="text"
-            className="form-control"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            className="form-control"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            className="form-control"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        <TextInput
+          formData={formData}
+          handleChange={handleChange}
+          label="Name"
+          type="name"
+        />
+        <TextInput
+          formData={formData}
+          handleChange={handleChange}
+          label="Email"
+          type="email"
+        />
+        <TextInput
+          formData={formData}
+          handleChange={handleChange}
+          label="Password"
+          type="password"
+        />
         <p>You agree with terms of service</p>
-        <button type="submit" className="btn btn-primary">
-          Submit
-        </button>
+        <BtnSubmit buttonText="Join now" onClick={handleSubmit} />
       </form>
-      <div className="mt-3">
-        <p>Already have an account? Login now:</p>
+      <Registration className="mt-3">
+        <p>Already have an account? Log in now:</p>
         <Link to="/login" className="btn btn-secondary">
           Login
         </Link>
-      </div>
-    </div>
+      </Registration>
+    </Container>
   )
 }
 

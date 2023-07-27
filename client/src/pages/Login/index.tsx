@@ -1,13 +1,17 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import BtnSubmit from '../../components/BtnSubmit'
+import { Container, Title, Registration } from '../../components/Forms'
+import { Link, useNavigate } from 'react-router-dom'
+import Logo from '../../components/Logo'
+import React, { useState } from 'react'
+import TextInput from '../../components/TextInput'
+import { toast } from 'react-toastify'
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   })
-  const [auth, setAuth] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -25,55 +29,40 @@ const Login: React.FC = () => {
       .then(res => {
         if (res.data.Status === 'Success') {
           navigate('/')
-          setAuth(true)
         } else {
-          alert(res.data.Error)
+          toast.error(`${res.data.Error}`)
         }
       })
       .then(err => console.log(err))
   }
 
   return (
-    <div className="container mt-5">
-      <h1>Pass_nger</h1>
-      <h2>Login</h2>
+    <Container>
+      <Logo />
+      <Title>Log in</Title>
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            className="form-control"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            className="form-control"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        <TextInput
+          formData={formData}
+          handleChange={handleChange}
+          label="Email"
+          type="email"
+        />
+        <TextInput
+          formData={formData}
+          handleChange={handleChange}
+          label="Password"
+          type="password"
+        />
         <p>You agree with terms of service</p>
-        <button type="submit" className="btn btn-primary">
-          Login
-        </button>
+        <BtnSubmit buttonText="Login" onClick={handleSubmit} />
       </form>
-      <div className="mt-3">
+      <Registration className="mt-3">
         <p>Don't have an account? Register now:</p>
         <Link to="/register" className="btn btn-secondary">
           Register
         </Link>
-      </div>
-    </div>
+      </Registration>
+    </Container>
   )
 }
 

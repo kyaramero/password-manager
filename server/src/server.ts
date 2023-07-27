@@ -106,15 +106,35 @@ app.post('/passwords', (req, res) => {
   });
 });
 
-app.post('/register', (req, res) => {
-  const sql = 'INSERT INTO login (`name`, `email`, `password`) VALUES (?)';
-  bcrypt.hash(req.body.password.toString(), salt, (err, hash) => {
-    if (err) return res.json({ Error: 'Error for hashing password' });
-    const data = [req.body.name, req.body.email, hash];
+const checkDuplicates = (email, callback) => {
+  const sql = 'SELECT * FROM login WHERE email = ?';
+  db.query(sql, [email], (err, result) => {
+    if (err) {
+      callback(err, null);
+    } else {
+      callback(null, result.length > 0);
+    }
+  });
+};
 
-    db.query(sql, [data], (err, result) => {
-      if (err) return res.json({ Error: 'Inserting data error in server' });
-      return res.json({ Status: 'Success' });
+app.post('/register', (req, res) => {
+  const email = req.body.email;
+  checkDuplicates(email, (err, isDuplicate) => {
+    if (err) {
+      return res.json({ Error: 'Error checking email in the server' });
+    }
+    if (isDuplicate) {
+      return res.json({ Error: 'Email already exists. Try another.' });
+    }
+    const sql = 'INSERT INTO login (`name`, `email`, `password`) VALUES (?)';
+    bcrypt.hash(req.body.password.toString(), salt, (err, hash) => {
+      if (err) return res.json({ Error: 'Error for hashing password' });
+      const data = [req.body.name, email, hash];
+
+      db.query(sql, [data], (err, result) => {
+        if (err) return res.json({ Error: 'Inserting data error in server' });
+        return res.json({ Status: 'Success' });
+      });
     });
   });
 });
