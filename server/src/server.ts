@@ -1,11 +1,13 @@
 // import '@controllers/DummyController';
 import * as dotenv from 'dotenv';
-import express, { response } from 'express';
+import express from 'express';
 import mysql from 'mysql';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import cookieParser from 'cookie-parser';
+import { db } from './database';
+const { encrypt, decrypt } = require('./encryption');
 
 const salt = 10;
 
@@ -28,12 +30,12 @@ let currentUser: CurrentUser = { user_id: 0, name: '' };
 
 app.use(cookieParser());
 
-const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'password',
-  database: 'passwordmanager',
-});
+// const db = mysql.createConnection({
+//   host: 'localhost',
+//   user: 'root',
+//   password: 'password',
+//   database: 'passwordmanager',
+// });
 
 const verifyUser = (req, res, next) => {
   const token = req.cookies.token;
@@ -56,52 +58,61 @@ app.get('/', verifyUser, (req, res) => {
 });
 
 app.get('/passwords', (req, res) => {
-  const sql = 'SELECT * FROM passwords WHERE fk_user_id = (?)';
-  db.query(sql, [currentUser['user_id']], (err, data) => {
-    if (err) return res.json('Error');
-    return res.json(data);
+  const sql = 'SELECT * FROM passwords WHERE fk_user_id = ?';
+  db.query(sql, [currentUser.user_id], (err, data) => {
+    if (err) {
+      return res.json({ Error: 'Error fetching passwords from the server' });
+    }
+    const decryptedData = data.map((item) => {
+      try {
+        const decryptedPassword = decrypt({
+          iv: item.iv,
+          password: item.password,
+        });
+        return { ...item, password: decryptedPassword };
+      } catch (error) {
+        console.error('Error decrypting password:', error.message);
+        return { ...item, password: 'Error decrypting password' };
+      }
+    });
+
+    return res.json(decryptedData);
   });
 });
-
 app.post('/passwords', (req, res) => {
-  const sql =
-    'INSERT INTO passwords (`type`, `url`, `password`, `email`, `brand`, `fk_user_id`) VALUES (?)';
-  bcrypt.hash(req.body.password.toString(), salt, (err, hash) => {
-    if (err) return res.json({ Error: 'Error for hashing password' });
-    const data = [
-      'Account',
-      req.body.url,
-      hash,
-      req.body.email,
-      req.body.brand,
-      currentUser['user_id'],
-    ];
-    db.query(sql, [data], (err, result) => {
-      if (err) return res.json({ Error: 'Inserting data error in server' });
-      return res.json({ Status: 'Success' });
-    });
-  });
-});
+  const isAccountPassword = 'url' in req.body;
+  const sql = isAccountPassword
+    ? 'INSERT INTO passwords (`type`, `url`, `password`, `email`, `brand`, `fk_user_id`, `iv`) VALUES (?)'
+    : 'INSERT INTO passwords (`type`, `name`, `password`, `cvc_card`, `brand`, `exp_card`, `fk_user_id`, `num_card`, `iv`) VALUES (?)';
 
-app.post('/passwords', (req, res) => {
-  const sql =
-    'INSERT INTO passwords (`type`, `name`, `password`, `cvc_card`, `brand`, `exp_card`, `fk_user_id`, `num_card`) VALUES (?)';
-  bcrypt.hash(req.body.cardPassword.toString(), salt, (err, hash) => {
-    if (err) return res.json({ Error: 'Error for hashing password' });
-    const data = [
-      'Card',
-      req.body.cardName,
-      hash,
-      req.body.cvv,
-      req.body.brand,
-      req.body.expirationDate,
-      currentUser['user_id'],
-      req.body.cardNumber,
-    ];
-    db.query(sql, [data], (err, result) => {
-      if (err) return res.json({ Error: 'Inserting data error in server' });
-      return res.json({ Status: 'Success' });
-    });
+  const passwordField = isAccountPassword ? 'password' : 'cardPassword';
+  const hashedPassword = encrypt(req.body[passwordField].toString());
+
+  const data = isAccountPassword
+    ? [
+        'Account',
+        req.body.url,
+        hashedPassword.password,
+        req.body.email,
+        req.body.brand,
+        currentUser['user_id'],
+        hashedPassword.iv,
+      ]
+    : [
+        'Card',
+        req.body.cardName,
+        hashedPassword.password,
+        req.body.cvv,
+        req.body.brand,
+        req.body.expirationDate,
+        currentUser['user_id'],
+        req.body.cardNumber,
+        hashedPassword.iv,
+      ];
+
+  db.query(sql, [data], (err, result) => {
+    if (err) return res.json({ Error: 'Inserting data error in server' });
+    return res.json({ Status: 'Success' });
   });
 });
 
@@ -151,7 +162,7 @@ app.post('/login', (req, res) => {
           if (response) {
             const name = data[0].name;
             const user_id = data[0].user_id;
-            currentUser = { user_id, name };
+            currentUser = { user_id: user_id, name: name };
             const token = jwt.sign({ name }, 'jwt-secret-key', {
               expiresIn: '1d',
             });
