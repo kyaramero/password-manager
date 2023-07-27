@@ -99,7 +99,6 @@ app.post('/passwords', (req, res) => {
       req.body.cardNumber,
     ];
     db.query(sql, [data], (err, result) => {
-      console.log('erro', err);
       if (err) return res.json({ Error: 'Inserting data error in server' });
       return res.json({ Status: 'Success' });
     });
@@ -159,12 +158,12 @@ app.post('/login', (req, res) => {
             res.cookie('token', token);
             return res.json({ Status: 'Success' });
           } else {
-            return res.json({ Error: "Password didn't match" });
+            return res.json({ Error: "Password doesn't match" });
           }
         }
       );
     } else {
-      return res.json({ Error: "Email doesn't exist" });
+      return res.json({ Error: "Email doesn't exist. Create an account" });
     }
   });
 });
@@ -177,6 +176,3 @@ app.get('/logout', (req, res) => {
 app.listen(3001, () => {
   console.log('Server is running 🟢');
 });
-
-// dotenv.config();
-// const port = 3001;
