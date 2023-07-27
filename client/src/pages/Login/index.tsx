@@ -46,12 +46,14 @@ const Login: React.FC = () => {
           handleChange={handleChange}
           label="Email"
           type="email"
+          id="email"
         />
         <TextInput
           formData={formData}
           handleChange={handleChange}
           label="Password"
           type="password"
+          id="password"
         />
         <p>You agree with terms of service</p>
         <BtnSubmit buttonText="Login" onClick={handleSubmit} />

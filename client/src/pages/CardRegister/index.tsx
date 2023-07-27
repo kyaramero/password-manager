@@ -1,6 +1,9 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { BoxRegister, TextType } from '../../components/Registration'
+import TextInput from '../../components/TextInput'
+import BtnSave from '../../components/BtnSave'
 
 const CardRegister: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -35,86 +38,54 @@ const CardRegister: React.FC = () => {
   }
 
   return (
-    <div className="container mt-5">
-      <h2>Card Registration</h2>
+    <BoxRegister>
+      <TextType>Card Register</TextType>
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="brand">Brand:</label>
-          <input
-            type="text"
-            className="form-control"
-            id="brand"
-            name="brand"
-            value={formData.brand}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="cardNumber">Card Number:</label>
-          <input
-            type="text"
-            className="form-control"
-            id="cardNumber"
-            name="cardNumber"
-            value={formData.cardNumber}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="cardName">Name:</label>
-          <input
-            type="text"
-            className="form-control"
-            id="cardName"
-            name="cardName"
-            value={formData.cardName}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="cvv">CVV:</label>
-          <input
-            type="text"
-            className="form-control"
-            id="cvv"
-            name="cvv"
-            value={formData.cvv}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="expirationDate">Expiration Date: eg.12/2032</label>
-          <input
-            type="text"
-            className="form-control"
-            id="expirationDate"
-            name="expirationDate"
-            value={formData.expirationDate}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="cardPassword">Card Password:</label>
-          <input
-            type="password"
-            className="form-control"
-            id="cardPassword"
-            name="cardPassword"
-            value={formData.cardPassword}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <button type="submit" className="btn btn-primary">
-          Register Card
-        </button>
+        <TextInput
+          formData={formData}
+          handleChange={handleChange}
+          label="Brand (eg. Mastercard)"
+          type="text"
+          id="brand"
+        />
+        <TextInput
+          formData={formData}
+          handleChange={handleChange}
+          label="Card Number"
+          type="text"
+          id="cardNumber"
+        />
+        <TextInput
+          formData={formData}
+          handleChange={handleChange}
+          label="Name (as in card)"
+          type="text"
+          id="cardName"
+        />
+        <TextInput
+          formData={formData}
+          handleChange={handleChange}
+          label="CVV"
+          type="password"
+          id="cvv"
+        />
+        <TextInput
+          formData={formData}
+          handleChange={handleChange}
+          label="Expiration Date"
+          type="month"
+          id="expirationDate"
+        />
+        <TextInput
+          formData={formData}
+          handleChange={handleChange}
+          label="Card Password"
+          type="password"
+          id="cardPassword"
+        />
+        <BtnSave onClick={handleSubmit} buttonText="Save" />
       </form>
-    </div>
+    </BoxRegister>
   )
 }
 

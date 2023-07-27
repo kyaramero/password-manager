@@ -43,18 +43,21 @@ const Register: React.FC = () => {
           handleChange={handleChange}
           label="Name"
           type="name"
+          id="name"
         />
         <TextInput
           formData={formData}
           handleChange={handleChange}
           label="Email"
           type="email"
+          id="email"
         />
         <TextInput
           formData={formData}
           handleChange={handleChange}
           label="Password"
           type="password"
+          id="password"
         />
         <p>You agree with terms of service</p>
         <BtnSubmit buttonText="Join now" onClick={handleSubmit} />

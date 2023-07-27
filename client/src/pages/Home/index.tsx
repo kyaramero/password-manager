@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { Container, PasswordBox, Title } from './styles'
+import ErrorMessage from '../../components/Error'
+import PasswordTable from '../../components/PasswordTable'
 
 const Home = () => {
   const [auth, setAuth] = useState(false)
@@ -44,43 +47,35 @@ const Home = () => {
   }
 
   return (
-    <div className="container mt-5">
+    <Container>
       {auth ? (
         <div>
-          <h1>Welcome, {name}!</h1>
-          <button className="btn btn-primary" onClick={handleLogout}>
-            Logout
-          </button>
-          <button
-            className="btn btn-primary mt-3"
-            onClick={() => navigate('/cardregister')}
-          >
-            Add card
-          </button>
-          <button
-            className="btn btn-primary mt-3"
-            onClick={() => navigate('/accountregister')}
-          >
-            Add account
-          </button>
-          <div>
-            {passwords.map((data, i) => (
-              <p>{data['password']}</p>
-            ))}
+          <Title>Welcome, {name}!</Title>
+          <div className="d-grid gap-2 d-md-flex justify-content-md-center">
+            <button
+              className="btn btn-secondary"
+              onClick={() => navigate('/cardregister')}
+            >
+              Add card
+            </button>
+            <button
+              className="btn btn-primary btn-sm"
+              onClick={() => navigate('/accountregister')}
+            >
+              Add account
+            </button>
+            <button className="btn btn-danger" onClick={handleLogout}>
+              Logout
+            </button>
           </div>
+          <PasswordBox>
+            <PasswordTable data={passwords} />
+          </PasswordBox>
         </div>
       ) : (
-        <div>
-          <h1>{message}. Please log in to continue.</h1>
-          <button
-            className="btn btn-primary"
-            onClick={() => navigate('/login')}
-          >
-            Log in
-          </button>
-        </div>
+        <ErrorMessage message={message} />
       )}
-    </div>
+    </Container>
   )
 }
 

@@ -6,7 +6,7 @@ export default {
   },
   fonts: {
     primary: {
-      regular: '600 Syncopate, sans-serif',
+      regular: 'Syncopate, sans-serif',
     },
     secondary: {
       regular: 'Roboto, sans-serif',

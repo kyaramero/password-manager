@@ -5,6 +5,7 @@ interface TextInputProps {
   handleChange: (e: ChangeEvent<HTMLInputElement>) => void
   label: string
   type: string
+  id: string
 }
 
 const TextInput: React.FC<TextInputProps> = ({
@@ -12,6 +13,7 @@ const TextInput: React.FC<TextInputProps> = ({
   handleChange,
   label,
   type,
+  id,
 }) => {
   return (
     <div className="form-group ">
@@ -19,9 +21,9 @@ const TextInput: React.FC<TextInputProps> = ({
       <input
         type={type}
         className="form-control form-control-lg"
-        id={type}
-        name={type}
-        value={formData[type]}
+        id={id}
+        name={id}
+        value={formData[id]}
         onChange={handleChange}
         required
       />
