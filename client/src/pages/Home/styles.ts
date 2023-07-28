@@ -17,12 +17,9 @@ export const Title = styled.div`
 `
 
 export const PasswordBox = styled.div`
-  background-color: #a1ccd1;
   padding: 2rem;
   border-radius: 8px;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   margin: 2rem auto;
-  width: 80%;
   height: 500px;
   overflow-y: auto;
 `
